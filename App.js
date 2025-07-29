@@ -1,6 +1,6 @@
 const express = require('express');
-const itemsRoutes = require('./routes/items');
-const errorHandler = require('./middleware/errorHandler');
+const itemsRoutes = require('items');
+const errorHandler = require('errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
