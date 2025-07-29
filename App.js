@@ -1,50 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import ListComponent from './ListComponent';
+const express = require('express');
+const itemsRoutes = require('./routes/items');
+const errorHandler = require('./middleware/errorHandler');
 
-const App = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  // Fetch data when component mounts
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const json = await response.json();
-        setData(json);
-      } catch (error) {
-        setError(error.message || 'Something went wrong');
-      } finally {
-        setLoading(false);
-      }
-    };
+// Middleware
+app.use(express.json());
 
-    fetchData();
-  }, []);
+// Root Route
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+});
 
-  return (
-    <div>
-      <h1>Post List</h1>
-      {loading && <p>Loading data...</p>}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-      {!loading && !error && data.length === 0 && <p>No posts available.</p>}
-      {!loading && !error && data.length > 0 && (
-        <ListComponent
-          items={data}
-          renderItem={(item) => (
-            <div>
-              <strong>{item.title}</strong>
-              <p>{item.body}</p>
-            </div>
-          )}
-        />
-      )}
-    </div>
-  );
-};
+// API Routes
+app.use('/items', itemsRoutes);
 
-export default App;
+// 404 Handler
+app.use((req, res, next) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+// Central Error Handler
+app.use(errorHandler);
+
+// Start Server
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
